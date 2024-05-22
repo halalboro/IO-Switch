@@ -1,0 +1,5 @@
+verilator --cc io_switch.v --exe io_switch_tb.cpp --trace
+cd obj_dir
+make -f Vio_switch.mk
+./Vio_switch
+gtkwave io_switch.vcd
