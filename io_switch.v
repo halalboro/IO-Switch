@@ -1,5 +1,5 @@
 // 4x4 Streaming I/O Switch built on a simplified version of AXI protocol
-// Made by - Anubhav Panda
+// Made by - Anubhav Panda 
 
 //Instantiate the module by defining all inputs and outputs
 module io_switch #(
@@ -51,9 +51,6 @@ module io_switch #(
     // Registers to store the routing logic
     reg [1:0] routing_reg_0, routing_reg_1, routing_reg_2, routing_reg_3;
 
-    // Stall signals to stop mulitple inputs from writing to the same output
-    reg stall_in_0, stall_in_1, stall_in_2, stall_in_3;
-
     // Main Logic 
     always @(posedge clk) begin
         if (rst) begin
@@ -63,11 +60,6 @@ module io_switch #(
             routing_reg_2 <= 2'b00;
             routing_reg_3 <= 2'b00;
 
-            stall_in_0 <= 0;
-            stall_in_1 <= 0;
-            stall_in_2 <= 0;
-            stall_in_3 <= 0;
-
         end else if (ctrl_wr_en) begin
             // Write to the routing registers from the routing table
             case (ctrl_addr)
@@ -76,32 +68,7 @@ module io_switch #(
                 2'd2: routing_reg_2 <= ctrl_wr_data;
                 2'd3: routing_reg_3 <= ctrl_wr_data;
             endcase
-
-        end else begin
-            // Check for clashing inputs and stall signals
-            case (routing_reg_0)
-                2'b00: begin
-                    stall_in_1 <= routing_reg_1 == 2'b00;
-                    stall_in_2 <= routing_reg_2 == 2'b00;
-                    stall_in_3 <= routing_reg_3 == 2'b00;
-                end
-                2'b01: begin
-                    stall_in_0 <= routing_reg_1 == 2'b01;
-                    stall_in_2 <= routing_reg_2 == 2'b01;
-                    stall_in_3 <= routing_reg_3 == 2'b01;
-                end
-                2'b10: begin
-                    stall_in_0 <= routing_reg_1 == 2'b10;
-                    stall_in_1 <= routing_reg_2 == 2'b10;
-                    stall_in_3 <= routing_reg_3 == 2'b10;
-                end
-                2'b11: begin
-                    stall_in_0 <= routing_reg_1 == 2'b11;
-                    stall_in_1 <= routing_reg_2 == 2'b11;
-                    stall_in_2 <= routing_reg_3 == 2'b11;
-                end
-            endcase
-        end
+        end    
     end
 
     // Output assignments instantiated in the form of a state machine
@@ -109,92 +76,92 @@ module io_switch #(
         case (routing_reg_0)
             2'b00: begin
                 out_data_0 <= in_data_0;
-                out_valid_0 <= in_valid_0 && !stall_in_0;
-                in_ready_0 <= out_ready_0 && !stall_in_0;
+                out_valid_0 <= in_valid_0;
+                in_ready_0 <= out_ready_0;
             end
             2'b01: begin
                 out_data_0 <= in_data_1;
-                out_valid_0 <= in_valid_1 && !stall_in_1;
-                in_ready_1 <= out_ready_0 && !stall_in_1;
+                out_valid_0 <= in_valid_1;
+                in_ready_1 <= out_ready_0;
             end
             2'b10: begin
                 out_data_0 <= in_data_2;
-                out_valid_0 <= in_valid_2 && !stall_in_2;
-                in_ready_2 <= out_ready_0 && !stall_in_2;
+                out_valid_0 <= in_valid_2;
+                in_ready_2 <= out_ready_0;
             end
             2'b11: begin
                 out_data_0 <= in_data_3;
-                out_valid_0 <= in_valid_3 && !stall_in_3;
-                in_ready_3 <= out_ready_0 && !stall_in_3;
+                out_valid_0 <= in_valid_3; 
+                in_ready_3 <= out_ready_0;
             end
         endcase
 
         case (routing_reg_1)
             2'b00: begin
                 out_data_1 <= in_data_0;
-                out_valid_1 <= in_valid_0 && !stall_in_0;
-                in_ready_0 <= out_ready_1 && !stall_in_0;
+                out_valid_1 <= in_valid_0;
+                in_ready_0 <= out_ready_1;
             end
             2'b01: begin
                 out_data_1 <= in_data_1;
-                out_valid_1 <= in_valid_1 && !stall_in_1;
-                in_ready_1 <= out_ready_1 && !stall_in_1;
+                out_valid_1 <= in_valid_1;
+                in_ready_1 <= out_ready_1;
             end
             2'b10: begin
                 out_data_1 <= in_data_2;
-                out_valid_1 <= in_valid_2 && !stall_in_2;
-                in_ready_2 <= out_ready_1 && !stall_in_2;
+                out_valid_1 <= in_valid_2;
+                in_ready_2 <= out_ready_1;
             end
             2'b11: begin
                 out_data_1 <= in_data_3;
-                out_valid_1 <= in_valid_3 && !stall_in_3;
-                in_ready_3 <= out_ready_1 && !stall_in_3;
+                out_valid_1 <= in_valid_3;
+                in_ready_3 <= out_ready_1;
             end
         endcase
 
         case (routing_reg_2)
             2'b00: begin
                 out_data_2 <= in_data_0;
-                out_valid_2 <= in_valid_0 && !stall_in_0;
-                in_ready_0 <= out_ready_2 && !stall_in_0;
+                out_valid_2 <= in_valid_0;
+                in_ready_0 <= out_ready_2; 
             end
             2'b01: begin
                 out_data_2 <= in_data_1;
-                out_valid_2 <= in_valid_1 && !stall_in_1;
-                in_ready_1 <= out_ready_2 && !stall_in_1;
+                out_valid_2 <= in_valid_1;
+                in_ready_1 <= out_ready_2;
             end
             2'b10: begin
                 out_data_2 <= in_data_2;
-                out_valid_2 <= in_valid_2 && !stall_in_2;
-                in_ready_2 <= out_ready_2 && !stall_in_2;
+                out_valid_2 <= in_valid_2;
+                in_ready_2 <= out_ready_2;
             end
             2'b11: begin
                 out_data_2 <= in_data_3;
-                out_valid_2 <= in_valid_3 && !stall_in_3;
-                in_ready_3 <= out_ready_2 && !stall_in_3;
+                out_valid_2 <= in_valid_3;
+                in_ready_3 <= out_ready_2;
             end
         endcase
 
         case (routing_reg_3)
             2'b00: begin
                 out_data_3 <= in_data_0;
-                out_valid_3 <= in_valid_0 && !stall_in_0;
-                in_ready_0 <= out_ready_3 && !stall_in_0;
+                out_valid_3 <= in_valid_0;
+                in_ready_0 <= out_ready_3;
             end
             2'b01: begin
                 out_data_3 <= in_data_1;
-                out_valid_3 <= in_valid_1 && !stall_in_1;
-                in_ready_1 <= out_ready_3 && !stall_in_1;
+                out_valid_3 <= in_valid_1;
+                in_ready_1 <= out_ready_3;
             end
             2'b10: begin
                 out_data_3 <= in_data_2;
-                out_valid_3 <= in_valid_2 && !stall_in_2;
-                in_ready_2 <= out_ready_3 && !stall_in_2;
+                out_valid_3 <= in_valid_2;
+                in_ready_2 <= out_ready_3;
             end
             2'b11: begin
                 out_data_3 <= in_data_3;
-                out_valid_3 <= in_valid_3 && !stall_in_3;
-                in_ready_3 <= out_ready_3 && !stall_in_3;
+                out_valid_3 <= in_valid_3;
+                in_ready_3 <= out_ready_3;
             end
         endcase
     end
