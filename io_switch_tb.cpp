@@ -58,35 +58,160 @@ int main(int argc, char **argv, char **env) {
     tick(top, tfp);        // Generates a clock tick
     top->rst = 0;
 
-    // Routing Configuration
-    top->ctrl_wr_en = 1;
 
-    top->ctrl_addr = 0;
-    top->ctrl_wr_data = 0; // Input 0 to Output 0
-    tick(top, tfp);
-
-    top->ctrl_addr = 1;
-    top->ctrl_wr_data = 1; // Input 1 to Output 1
-    tick(top, tfp);
-    tick(top, tfp);        // This extra clock tick is to make sure that the configuration is complete (as it occurs at negative edge of clock)
-
-    top->ctrl_addr = 2;
-    top->ctrl_wr_data = 2; // Input 2 to Output 2
-    tick(top, tfp);
-    tick(top, tfp);        // This extra clock tick is to make sure that the configuration is complete (as it occurs at negative edge of clock)
-
-    top->ctrl_addr = 3;
-    top->ctrl_wr_data = 3; // Input 3 to Output 3
-    tick(top, tfp);
-
-
-    top->ctrl_wr_en = 0; // Disable control write after configuration complete
+    //Test Case 1 - Many Inputs to One Output
 
     //Input Data Stream
     top->in_data_0 = 0xAAAAAAAA;
     top->in_data_1 = 0xBBBBBBBB;
     top->in_data_2 = 0xCCCCCCCC;
     top->in_data_3 = 0xDDDDDDDD;
+
+    // Routing Configuration
+    top->ctrl_wr_en = 1;
+
+    top->ctrl_addr = 0;
+    top->ctrl_wr_data = 1; // Input 0 to Output 0
+    tick(top, tfp);
+    tick(top, tfp);
+
+    top->ctrl_addr = 0;
+    top->ctrl_wr_data = 2; // Input 1 to Output 0
+    tick(top, tfp);
+    tick(top, tfp);
+
+    top->ctrl_addr = 0;
+    top->ctrl_wr_data = 4; // Input 2 to Output 0
+    tick(top, tfp);
+    tick(top, tfp); 
+
+    top->ctrl_addr = 0;
+    top->ctrl_wr_data = 7; // Input 3 to Output 0
+    tick(top, tfp);
+    tick(top, tfp);
+
+
+    top->ctrl_wr_en = 0; // Disable control write after configuration complete
+
+    for (int i = 0; i < 5; ++i) {
+    tick(top, tfp);
+    }
+
+
+    // Test Case 2 - One Input to One Output
+
+    //Input Data Stream
+    top->in_data_0 = 0x0000000A;
+    top->in_data_1 = 0x0000000B;
+    top->in_data_2 = 0x0000000C;
+    top->in_data_3 = 0x0000000D;
+
+    // Routing Configuration
+    top->ctrl_wr_en = 1;
+
+    top->ctrl_addr = 0;
+    top->ctrl_wr_data = 1; // Input 0 to Output 0
+    tick(top, tfp);
+    tick(top, tfp);
+
+    top->ctrl_addr = 1;
+    top->ctrl_wr_data = 2; // Input 1 to Output 1
+    tick(top, tfp);
+    tick(top, tfp);
+
+    top->ctrl_addr = 2;
+    top->ctrl_wr_data = 4; // Input 2 to Output 2
+    tick(top, tfp);
+    tick(top, tfp); 
+
+    top->ctrl_addr = 3;
+    top->ctrl_wr_data = 7; // Input 3 to Output 3
+    tick(top, tfp);
+    tick(top, tfp);
+
+
+    top->ctrl_wr_en = 0; // Disable control write after configuration complete
+    
+
+    for (int i = 0; i < 5; ++i) {
+    tick(top, tfp);
+    }
+
+
+    // Test Case 3 - One Input to Many Outputs
+
+    //Input Data Stream
+    top->in_data_0 = 0x10000000;
+    top->in_data_1 = 0x11000000;
+    top->in_data_2 = 0x11100000;
+    top->in_data_3 = 0x11110000;
+
+    // Routing Configuration
+    top->ctrl_wr_en = 1;
+
+    top->ctrl_addr = 0;
+    top->ctrl_wr_data = 1; // Input 0 to Output 0
+    tick(top, tfp);
+    tick(top, tfp);
+
+    top->ctrl_addr = 1;
+    top->ctrl_wr_data = 1; // Input 0 to Output 1
+    tick(top, tfp);
+    tick(top, tfp);
+
+    top->ctrl_addr = 2;
+    top->ctrl_wr_data = 1; // Input 0 to Output 2
+    tick(top, tfp);
+    tick(top, tfp); 
+
+    top->ctrl_addr = 3;
+    top->ctrl_wr_data = 1; // Input 0 to Output 3
+    tick(top, tfp);
+    tick(top, tfp);
+
+
+    top->ctrl_wr_en = 0; // Disable control write after configuration complete
+    
+
+    for (int i = 0; i < 5; ++i) {
+    tick(top, tfp);
+    }
+
+
+    // Test Case 4 - Wrong Routing Configuration
+
+    //Input Data Stream
+    top->in_data_0 = 0x10000001;
+    top->in_data_1 = 0x11000011;
+    top->in_data_2 = 0x11100111;
+    top->in_data_3 = 0x11111111;
+
+    // Routing Configuration
+    top->ctrl_wr_en = 1;
+
+    top->ctrl_addr = 0;
+    top->ctrl_wr_data = 3; // Wrong Value
+    tick(top, tfp);
+    tick(top, tfp);
+
+    top->ctrl_addr = 1;
+    top->ctrl_wr_data = 5; // Wrong Value
+    tick(top, tfp);
+    tick(top, tfp);
+
+    top->ctrl_addr = 2;
+    top->ctrl_wr_data = 3; // Wrong Value
+    tick(top, tfp);
+    tick(top, tfp); 
+
+    top->ctrl_addr = 3;
+    top->ctrl_wr_data = 5; // Wrong Value
+    tick(top, tfp);
+    tick(top, tfp);
+
+
+    top->ctrl_wr_en = 0; // Disable control write after configuration complete
+
 
 
     // Simulate

@@ -11,7 +11,7 @@ module io_switch #(
     // Control Interface
     input [1:0] ctrl_addr,
     input ctrl_wr_en,
-    input [1:0] ctrl_wr_data,
+    input [2:0] ctrl_wr_data,
 
     // Input Streaming Interfaces
     input [DATA_WIDTH-1:0] in_data_0,
@@ -49,17 +49,20 @@ module io_switch #(
 );
 
     // Registers to store the routing logic
-    reg [1:0] routing_reg_0, routing_reg_1, routing_reg_2, routing_reg_3;
+    reg [2:0] routing_reg_0, routing_reg_1, routing_reg_2, routing_reg_3;
 
     // Main Logic 
     always @(posedge clk) begin
         if (rst) begin
             // Reset all registers
-            routing_reg_0 <= 2'b00;
-            routing_reg_1 <= 2'b00;
-            routing_reg_2 <= 2'b00;
-            routing_reg_3 <= 2'b00;
-
+            routing_reg_0 <= 3'b00;
+            routing_reg_1 <= 3'b00;
+            routing_reg_2 <= 3'b00;
+            routing_reg_3 <= 3'b00;
+            in_ready_0 <= 0;
+            in_ready_1 <= 0;
+            in_ready_2 <= 0;
+            in_ready_3 <= 0;
         end else if (ctrl_wr_en) begin
             // Write to the routing registers from the routing table
             case (ctrl_addr)
@@ -68,28 +71,37 @@ module io_switch #(
                 2'd2: routing_reg_2 <= ctrl_wr_data;
                 2'd3: routing_reg_3 <= ctrl_wr_data;
             endcase
-        end    
+        end else begin
+            out_data_0 <= 0;
+            out_data_1 <= 0;
+            out_data_2 <= 0;
+            out_data_3 <= 0;
+            routing_reg_0 <= 0;
+            routing_reg_1 <= 0;
+            routing_reg_2 <= 0;
+            routing_reg_3 <= 0;
+        end      
     end
 
     // Output assignments instantiated in the form of a state machine
-    always @(negedge clk) begin
-        case (routing_reg_0)
-            2'b00: begin
+    always @(posedge clk) begin
+        case (routing_reg_0)   
+            3'b001: begin
                 out_data_0 <= in_data_0;
                 out_valid_0 <= in_valid_0;
                 in_ready_0 <= out_ready_0;
             end
-            2'b01: begin
+            3'b010: begin
                 out_data_0 <= in_data_1;
                 out_valid_0 <= in_valid_1;
                 in_ready_1 <= out_ready_0;
             end
-            2'b10: begin
+            3'b100: begin
                 out_data_0 <= in_data_2;
                 out_valid_0 <= in_valid_2;
                 in_ready_2 <= out_ready_0;
             end
-            2'b11: begin
+            3'b111: begin
                 out_data_0 <= in_data_3;
                 out_valid_0 <= in_valid_3; 
                 in_ready_3 <= out_ready_0;
@@ -97,22 +109,22 @@ module io_switch #(
         endcase
 
         case (routing_reg_1)
-            2'b00: begin
+            3'b001: begin
                 out_data_1 <= in_data_0;
                 out_valid_1 <= in_valid_0;
                 in_ready_0 <= out_ready_1;
             end
-            2'b01: begin
+            3'b010: begin
                 out_data_1 <= in_data_1;
                 out_valid_1 <= in_valid_1;
                 in_ready_1 <= out_ready_1;
             end
-            2'b10: begin
+            3'b100: begin
                 out_data_1 <= in_data_2;
                 out_valid_1 <= in_valid_2;
                 in_ready_2 <= out_ready_1;
             end
-            2'b11: begin
+            3'b111: begin
                 out_data_1 <= in_data_3;
                 out_valid_1 <= in_valid_3;
                 in_ready_3 <= out_ready_1;
@@ -120,22 +132,22 @@ module io_switch #(
         endcase
 
         case (routing_reg_2)
-            2'b00: begin
+            3'b001: begin
                 out_data_2 <= in_data_0;
                 out_valid_2 <= in_valid_0;
                 in_ready_0 <= out_ready_2; 
             end
-            2'b01: begin
+            3'b010: begin
                 out_data_2 <= in_data_1;
                 out_valid_2 <= in_valid_1;
                 in_ready_1 <= out_ready_2;
             end
-            2'b10: begin
+            3'b100: begin
                 out_data_2 <= in_data_2;
                 out_valid_2 <= in_valid_2;
                 in_ready_2 <= out_ready_2;
             end
-            2'b11: begin
+            3'b111: begin
                 out_data_2 <= in_data_3;
                 out_valid_2 <= in_valid_3;
                 in_ready_3 <= out_ready_2;
@@ -143,22 +155,22 @@ module io_switch #(
         endcase
 
         case (routing_reg_3)
-            2'b00: begin
+            3'b001: begin
                 out_data_3 <= in_data_0;
                 out_valid_3 <= in_valid_0;
                 in_ready_0 <= out_ready_3;
             end
-            2'b01: begin
+            3'b010: begin
                 out_data_3 <= in_data_1;
                 out_valid_3 <= in_valid_1;
                 in_ready_1 <= out_ready_3;
             end
-            2'b10: begin
+            3'b100: begin
                 out_data_3 <= in_data_2;
                 out_valid_3 <= in_valid_2;
                 in_ready_2 <= out_ready_3;
             end
-            2'b11: begin
+            3'b111: begin
                 out_data_3 <= in_data_3;
                 out_valid_3 <= in_valid_3;
                 in_ready_3 <= out_ready_3;
